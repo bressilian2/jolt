@@ -1,24 +1,29 @@
-pub const XLEN: usize = 32;
-const RISCV_REGISTER_COUNT: u64 = 32;
-const VIRTUAL_REGISTER_COUNT: u64 = 32; //  see Section 6.1 of Jolt paper
-pub const REGISTER_COUNT: u64 = RISCV_REGISTER_COUNT + VIRTUAL_REGISTER_COUNT;
-pub const BYTES_PER_INSTRUCTION: usize = 4;
-/// 3 registers (rd, rs1, rs2) + 1 RAM
+// Architecture-specific constants
+pub const XLEN: usize = 32;  // Register length in bits
+const RISCV_REGISTER_COUNT: usize = 32;  // Number of general-purpose registers in the RISC-V architecture
+const VIRTUAL_REGISTER_COUNT: usize = 32;  // Number of virtual registers, as described in the Jolt paper
+pub const REGISTER_COUNT: usize = RISCV_REGISTER_COUNT + VIRTUAL_REGISTER_COUNT;  // Total register count (including virtual registers)
+pub const BYTES_PER_INSTRUCTION: usize = 4;  // Number of bytes in one instruction
+
+// Memory operation constants
+/// Number of memory operations per instruction (3 registers and 1 RAM access)
 pub const MEMORY_OPS_PER_INSTRUCTION: usize = 4;
 
-pub const RAM_START_ADDRESS: u64 = 0x80000000;
-pub const DEFAULT_MEMORY_SIZE: u64 = 10 * 1024 * 1024;
-pub const DEFAULT_STACK_SIZE: u64 = 4096;
-pub const DEFAULT_MAX_INPUT_SIZE: u64 = 4096;
-pub const DEFAULT_MAX_OUTPUT_SIZE: u64 = 4096;
+// Memory-related constants
+pub const RAM_START_ADDRESS: u64 = 0x80000000;  // Starting address of RAM
+pub const DEFAULT_MEMORY_SIZE: usize = 10 * 1024 * 1024;  // Default memory size (10 MB)
+pub const DEFAULT_STACK_SIZE: usize = 4096;  // Default stack size (4 KB)
+pub const DEFAULT_MAX_INPUT_SIZE: usize = 4096;  // Default maximum input size (4 KB)
+pub const DEFAULT_MAX_OUTPUT_SIZE: usize = 4096;  // Default maximum output size (4 KB)
 
-pub const fn virtual_register_index(index: u64) -> u64 {
-    index + VIRTUAL_REGISTER_COUNT
+// Function to calculate the index of a virtual register
+pub const fn virtual_register_index(index: usize) -> usize {
+    index + VIRTUAL_REGISTER_COUNT  // Virtual registers follow after the physical registers
 }
 
-// Layout of the witness (where || denotes concatenation):
+// Layout of the witness (memory layout):
 //     registers || virtual registers || inputs || outputs || panic || termination || padding || RAM
-// Layout of VM memory:
+// Layout of the VM memory (memory address space):
 //     peripheral devices || inputs || outputs || panic || termination || padding || RAM
-// Notably, we want to be able to map the VM memory address space to witness indices
-// using a constant shift, namely (RAM_WITNESS_OFFSET + RAM_START_ADDRESS)
+// The VM memory can be mapped to witness indices with an offset:
+//     (RAM_WITNESS_OFFSET + RAM_START_ADDRESS)
